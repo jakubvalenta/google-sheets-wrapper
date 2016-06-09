@@ -424,9 +424,9 @@ def format_range(service, spreadsheet_id, cell_range=None,
                  wrap_strategy=None):
     """Set various formatting options for all cells in a range"""
 
-    if background_color is not None:
+    if background_color is not None and background_color != '':
         background_color = format_color(background_color)
-    if padding is not None:
+    if padding is not None and padding != '':
         padding = format_all_sides(padding)
 
     args = {
