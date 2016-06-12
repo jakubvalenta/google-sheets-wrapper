@@ -1,5 +1,6 @@
 import httplib2
 import os
+import re
 
 from apiclient import discovery
 import oauth2client
@@ -52,6 +53,18 @@ def build_service_api_key(developer_key):
                               discoveryServiceUrl=discovery_url,
                               developerKey=developer_key)
     return service
+
+
+def a1(row_index, column_index):
+    """Get an A1 notation for a cell specified by its row index
+    and column index"""
+    ord_first = ord('A')
+    ord_last = ord('Z')
+    letters_count = ord_last - ord_first + 1
+    level, letter_index = divmod(column_index, letters_count)
+    letter = chr(ord_first + letter_index) * (1 + level)
+    number = row_index + 1
+    return '{letter}{number}'.format(letter=letter, number=number)
 
 
 def a1_all(service, spreadsheet_id, sheet_id=0):
@@ -107,6 +120,17 @@ def _read(service, spreadsheet_id, sheet_id=0, cell_range=None):
               .execute())
     values = result.get('values', [])
     return values
+
+
+def read_cell(service, spreadsheet_id, row_index, column_index, sheet_id=0):
+    """Read a cell value"""
+    cell_range = a1(row_index, column_index)
+    values = _read(service, spreadsheet_id, sheet_id=sheet_id,
+                   cell_range=cell_range)
+    try:
+        return values[0][0]
+    except IndexError:
+        return None
 
 
 def update(service, spreadsheet_id, rows, begin=1):
@@ -518,3 +542,13 @@ def delete_all_rows(service, spreadsheet_id, sheet_id=0):
     }]
     print('Deleting all rows')
     _exec(service, spreadsheet_id, requests)
+
+
+def format_formula_image(url):
+    return '=IMAGE("{}")'.format(url)
+
+
+def parse_formula_image(formula):
+    m = re.match('^=IMAGE\("([^"]+)".*\)$', formula)
+    if m:
+        return m.group(1)
