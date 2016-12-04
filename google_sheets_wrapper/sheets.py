@@ -1,6 +1,7 @@
 import httplib2
 import os
 import re
+import time
 
 from apiclient import discovery
 import oauth2client
@@ -96,10 +97,27 @@ def format_all_sides(value):
     return all
 
 
+n_requests_made = 0
+
+REQUESTS_LIMIT = 100
+REQUESTS_SLEEP = 60
+
+
+def _wait():
+    global n_requests_made
+    n_requests_made += 1
+    if n_requests_made > REQUESTS_LIMIT:
+        print('Reached limit of {} requests. Waiting for {} seconds'.format(
+            REQUESTS_LIMIT, REQUESTS_SLEEP))
+        time.sleep(REQUESTS_SLEEP)
+        n_requests_made = 1
+
+
 def _exec(service, spreadsheet_id, requests):
     """Execute a batch of Sheets API `batchUpdate` requests"""
     print(requests)
     batch_update_request = {'requests': requests}
+    _wait()
     (service.spreadsheets()
      .batchUpdate(
          spreadsheetId=spreadsheet_id,
@@ -111,6 +129,7 @@ def _read(service, spreadsheet_id, sheet_id=0, cell_range=None):
     """Read a cell range"""
     if cell_range is None:
         cell_range = a1_all(service, spreadsheet_id, sheet_id=sheet_id)
+    _wait()
     result = (service.spreadsheets()
               .values().get(
                   spreadsheetId=spreadsheet_id,
@@ -140,6 +159,7 @@ def update(service, spreadsheet_id, rows, begin=1):
     if parameter `begin` is passed."""
     rows_len = len(rows)
     print('Updating {} rows.'.format(rows_len))
+    _wait()
     (service.spreadsheets()
      .values().update(
          spreadsheetId=spreadsheet_id,
