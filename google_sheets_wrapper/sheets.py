@@ -81,9 +81,10 @@ def a1_all(service, spreadsheet_id, sheet_id=0):
 
 def format_color(rgba):
     """Convert color tuple to a dict for the Sheets API"""
-    color = {'red': 0, 'green': 0, 'blue': 0}
-    if len(rgba) >= 4:
-        color['alpha'] = rgba[3]
+    r, g, b, *a = rgba
+    color = {'red': r, 'green': g, 'blue': b}
+    if a:
+        color['alpha'] = a[0]
     else:
         color['alpha'] = 1
     return color
