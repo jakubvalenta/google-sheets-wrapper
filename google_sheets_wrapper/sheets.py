@@ -3,8 +3,10 @@ import re
 import time
 
 import httplib2
-import oauth2client
 from apiclient import discovery
+
+import oauth2client
+import oauth2client.file
 from oauth2client import client, tools
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
