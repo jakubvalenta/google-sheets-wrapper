@@ -3,19 +3,17 @@ import re
 import time
 
 import httplib2
-from apiclient import discovery
-
 import oauth2client
 import oauth2client.file
+from apiclient import discovery
 from oauth2client import client, tools
 
 SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
-CLIENT_SECRET_FILE = 'client_secret.json'
 APPLICATION_NAME = 'Google Sheets API'
 CREDENTIAL_DIR = '.credentials'
 
 
-def get_credentials(flags=None):
+def get_credentials(client_secrets_path, flags=None):
     """Gets valid user credentials from storage.
 
     If nothing has been stored, or if the stored credentials are invalid,
@@ -33,15 +31,15 @@ def get_credentials(flags=None):
     store = oauth2client.file.Storage(credential_path)
     credentials = store.get()
     if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(CLIENT_SECRET_FILE, SCOPES)
+        flow = client.flow_from_clientsecrets(client_secrets_path, SCOPES)
         flow.user_agent = APPLICATION_NAME
         credentials = tools.run_flow(flow, store, flags)
         print('Storing credentials to ' + credential_path)
     return credentials
 
 
-def build_service_oauth(flags):
-    credentials = get_credentials(flags)
+def build_service_oauth(client_secrets_path, flags):
+    credentials = get_credentials(client_secrets_path, flags)
     http = credentials.authorize(httplib2.Http())
     discovery_url = 'https://sheets.googleapis.com/$discovery/rest?version=v4'
     service = discovery.build(
