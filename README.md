@@ -4,27 +4,21 @@ A library wrapping Google Sheets API to make some operations easier.
 
 ## Installation
 
-Install with pip
+Install Google Sheets Wrapper using pip:
 
 ```
 pip install google-sheets-wrapper
 ```
 
-or with setuptools.
-
-```
-python setup.py install
-```
-
 ## Usage
 
-```python
+``` python
 from google_sheets_wrapper import sheets
 ```
 
 ## Help
 
-See `google_sheets_wrapper.py`.
+See [google_sheets_wrapper/sheets.py](./google_sheets_wrapper/sheets.py).
 
 ## Contributing
 
