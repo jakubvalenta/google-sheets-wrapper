@@ -10,7 +10,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='google-sheets-wrapper',
-    version='1.0.0',
+    version='1.0.1',
     description=(
         'A library wrapping Google Sheets API to make some operations' 'easier'
     ),
@@ -28,5 +28,5 @@ setup(
     ],
     keywords='',
     packages=find_packages(),
-    install_requires=['google-api-python-client'],
+    install_requires=['google-api-python-client==1.6.2'],
 )
