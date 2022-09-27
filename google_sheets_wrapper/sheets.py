@@ -1,61 +1,41 @@
 import os
+import os.path
 import re
 import time
 
-import httplib2
-import oauth2client
-import oauth2client.file
-from apiclient import discovery
-from oauth2client import client, tools
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
 
-SCOPES = 'https://www.googleapis.com/auth/spreadsheets'
-APPLICATION_NAME = 'Google Sheets API'
-CREDENTIAL_DIR = '.credentials'
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 
-def get_credentials(client_secrets_path, flags=None):
-    """Gets valid user credentials from storage.
+def get_credentials(client_secrets_path, credentials_path, port):
+    """See https://developers.google.com/sheets/api/quickstart/python
+    #step_2_configure_the_sample"""
+    creds = None
+    if os.path.exists(credentials_path):
+        creds = Credentials.from_authorized_user_file(credentials_path, SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file(
+                client_secrets_path, SCOPES
+            )
+            creds = flow.run_local_server(port=port)
+        os.makedirs(os.path.dirname(credentials_path), exist_ok=True)
+        with open(credentials_path, 'w') as token:
+            token.write(creds.to_json())
+    return creds
 
-    If nothing has been stored, or if the stored credentials are invalid,
-    the OAuth2 flow is completed to obtain the new credentials.
 
-    Returns:
-        Credentials, the obtained credential.
-    """
-    if not os.path.exists(CREDENTIAL_DIR):
-        os.makedirs(CREDENTIAL_DIR)
-    credential_path = os.path.join(
-        CREDENTIAL_DIR, 'sheets.googleapis.com.json'
+def authenticate(client_secrets_path, credentials_path, port=0):
+    credentials = get_credentials(
+        client_secrets_path, credentials_path, port=port
     )
-
-    store = oauth2client.file.Storage(credential_path)
-    credentials = store.get()
-    if not credentials or credentials.invalid:
-        flow = client.flow_from_clientsecrets(client_secrets_path, SCOPES)
-        flow.user_agent = APPLICATION_NAME
-        credentials = tools.run_flow(flow, store, flags)
-        print('Storing credentials to ' + credential_path)
-    return credentials
-
-
-def build_service_oauth(client_secrets_path, flags):
-    credentials = get_credentials(client_secrets_path, flags)
-    http = credentials.authorize(httplib2.Http())
-    discovery_url = 'https://sheets.googleapis.com/$discovery/rest?version=v4'
-    service = discovery.build(
-        'sheets', 'v4', http=http, discoveryServiceUrl=discovery_url
-    )
-    return service
-
-
-def build_service_api_key(developer_key):
-    discovery_url = 'https://sheets.googleapis.com/$discovery/rest?version=v4'
-    service = discovery.build(
-        'sheets',
-        'v4',
-        discoveryServiceUrl=discovery_url,
-        developerKey=developer_key,
-    )
+    service = build('sheets', 'v4', credentials=credentials)
     return service
 
 

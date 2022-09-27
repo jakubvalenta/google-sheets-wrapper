@@ -6,13 +6,13 @@ A library wrapping Google Sheets API to make some operations easier.
 
 Install Google Sheets Wrapper using pip:
 
-```
-pip install google-sheets-wrapper
+```shell
+$ pip install google-sheets-wrapper
 ```
 
 ## Usage
 
-``` python
+```python
 from google_sheets_wrapper import sheets
 ```
 
@@ -22,4 +22,5 @@ See [google_sheets_wrapper/sheets.py](./google_sheets_wrapper/sheets.py).
 
 ## Contributing
 
-See [NOTICE](./NOTICE) and [LICENSE](./LICENSE) for license information.
+__Feel free to remix this project__ under the terms of the [Apache License,
+Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
